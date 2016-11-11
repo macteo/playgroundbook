@@ -1,3 +1,4 @@
+# encoding: utf-8
 module Playgroundbook
   class PageProcessor
     def strip_extraneous_newlines(page_contents)
@@ -13,18 +14,21 @@ module Playgroundbook
     end
 
     def extract_live_view(page_contents)
-        # Looks for //// LiveView separators.
-        split_file = page_contents.split(/\/\/\/\/ LiveView/)
-        puts "------"
-        puts split_file
-        puts "------"
-        purged_content = split_file.drop(1).map(&:strip)
-        live_view = split_file[2]
+      match = page_contents.match(/\/\/#-live-view(.+)\/\/#-end-live-view/m)
 
-        {
-          purged_content: purged_content,
-          live_view: live_view
-        }
+      if match
+        live_view = match[1]
+      end
+      if live_view
+        purged_contents = page_contents.gsub(match.to_s, "")
+      else
+        purged_contents = page_contents
+      end
+
+      {
+        purged_content: purged_contents,
+        live_view: live_view
+      }
     end
   end
 end
